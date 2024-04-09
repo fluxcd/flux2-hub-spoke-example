@@ -11,8 +11,6 @@ set -o pipefail
 repo_root=$(git rev-parse --show-toplevel)
 mkdir -p "${repo_root}/bin"
 
-CLUSTER_VERSION="${CLUSTER_VERSION:=v1.29.2}"
-
 CLUSTER_HUB="flux-hub"
 
 echo "INFO - Installing Flux in the hub cluster"
@@ -22,6 +20,7 @@ flux --context "kind-${CLUSTER_HUB}" install \
 
 flux --context "kind-${CLUSTER_HUB}" create source git flux-system \
 --url=https://github.com/fluxcd/flux2-hub-spoke-example \
+--ignore-paths="hub/flux-system/" \
 --branch=main \
 --interval=1m \
 --username=git \
@@ -29,7 +28,6 @@ flux --context "kind-${CLUSTER_HUB}" create source git flux-system \
 
 flux --context "kind-${CLUSTER_HUB}" create kustomization flux-system \
 --source=GitRepository/flux-system \
---ignore-paths="hub/flux-system/"
 --path="./hub" \
 --prune=true \
 --interval=10m
