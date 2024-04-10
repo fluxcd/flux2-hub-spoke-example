@@ -29,6 +29,7 @@ metadata:
   name: releases-sync
   namespace: staging
 spec:
+  targetNamespace: staging
   interval: 1h
   retryInterval: 3m
   timeout: 5m
