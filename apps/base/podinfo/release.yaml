@@ -4,6 +4,7 @@ metadata:
   name: podinfo
 spec:
   targetNamespace: podinfo
+  storageNamespace: podinfo
   releaseName: podinfo
   chart:
     spec:
