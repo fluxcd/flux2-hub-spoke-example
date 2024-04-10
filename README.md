@@ -196,6 +196,26 @@ ingress-nginx-controller   2/2     2
 > deploying to production. For more information, see the guide
 > [Promote Flux Helm Releases with GitHub Actions](https://fluxcd.io/flux/use-cases/gh-actions-helm-promotion/).
 
+## Security considerations and dependency management
+
+In the `deploy/tenants` dir we provision the tenant namespaces and RBAC resources. There are two types of tenants:
+
+- cluster admins - have full access to the cluster resources and can deploy HelmReleases that contain CRD controllers
+- app operators - have restricted access to the app namespaces and can't manage cluster-wide resources like CRDs
+
+At bootstrap, Flux provisions the tenant namespaces and RBAC resources in the target clusters.
+The `deploy/apps` HelmReleases are deployed using the `flux-restricted` service account while the
+`deploy/infra-controllers` HelmReleases and the `deploy/infra-configs` custom resources
+are deployed using the `flux-cluster-admin` service account.
+
+To enforce the RBAC restrictions, and to provision the controllers before the custom resources, we use the
+`dependsOn` feature in the `hub/staging.yaml` and `hub/production.yaml` to order the reconciliation like so:
+
+1. `tenants` (namespaces, service accounts and role bindings resources)
+2. `infra-controllers` (CRD controllers - depends on `tenants`)
+3. `infra-configs` (cluster-wide custom resources - depends on `infra-controllers`)
+4. `apps` (app workloads - depends on `infra-configs`)
+
 ## Testing
 
 After making changes to the manifests, you can validate them locally with [kubeconform](https://github.com/yannh/kubeconform) by running:
