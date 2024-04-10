@@ -6,7 +6,7 @@ metadata:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-sync
+  name: tenants-sync
   namespace: staging
 spec:
   interval: 1h
@@ -14,7 +14,7 @@ spec:
   timeout: 5m
   prune: true
   wait: true
-  path: ./clusters/staging
+  path: ./clusters/staging/tenants
   sourceRef:
     kind: GitRepository
     name: flux-system
@@ -22,3 +22,29 @@ spec:
   kubeConfig:
     secretRef:
       name: cluster-kubeconfig
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: releases-sync
+  namespace: staging
+spec:
+  interval: 1h
+  retryInterval: 3m
+  timeout: 5m
+  prune: true
+  wait: true
+  path: ./clusters/staging/releases
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  patches:
+    - target:
+        kind: HelmRelease
+      patch: |
+        - op: add
+          path: /spec/kubeconfig
+          value:
+            secretRef:
+              name: cluster-kubeconfig
