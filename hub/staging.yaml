@@ -29,6 +29,8 @@ metadata:
   name: releases-sync
   namespace: staging
 spec:
+  dependsOn:
+    - name: tenants-sync
   targetNamespace: staging
   interval: 1h
   retryInterval: 3m
