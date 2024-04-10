@@ -118,17 +118,27 @@ Wait for the Flux to reconcile the infrastructure and apps workloads on the targ
 watch flux get kustomizations -A
 ```
 
-Once the Flux Kustomizations are ready, you can list the workloads deployed in the target clusters.
+Once the Flux Kustomizations are ready, you can list the Helm releases deployed in the target clusters.
 For example, in the staging cluster:
 
 ```console
-$ kubectl --context kind-flux-staging get pods -A
-NAMESPACE            NAME                                                 READY
-cert-manager         cert-manager-6dc66985d4-fkv95                        1/1
-cert-manager         cert-manager-cainjector-c7d4dbdd9-2kr6f              1/1
-cert-manager         cert-manager-webhook-847d7676c9-vqn6f                1/1
-ingress-nginx        ingress-nginx-controller-55474d95c5-mq8mj            1/1
-podinfo              podinfo-66f4ccb98c-bt99t                             1/1
+$ helm --kube-context kind-flux-staging ls -A
+NAME            NAMESPACE       STATUS     CHART
+cert-manager    cert-manager    deployed   cert-manager-v1.14.4
+ingress-nginx   ingress-nginx   deployed   ingress-nginx-4.10.0 
+podinfo         podinfo         deployed   podinfo-6.6.2  
+```
+
+For each target cluster, there is a corresponding namespace in the hub cluster that contains the
+Flux HelmRelease objects for the apps and infrastructure workloads.
+For example, in the staging namespace:
+
+```console
+$ flux --context kind-flux-hub -n staging get hr
+NAME            REVISION        SUSPENDED       READY                                                                                           
+cert-manager    v1.14.4         False           True        
+ingress-nginx   4.10.0          False           True      
+podinfo         6.6.2           False           True
 ```
 
 ## Customize the workloads
