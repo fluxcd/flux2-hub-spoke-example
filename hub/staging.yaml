@@ -6,7 +6,7 @@ metadata:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: tenants-sync
+  name: tenants
   namespace: staging
 spec:
   interval: 1h
@@ -22,22 +22,25 @@ spec:
   kubeConfig:
     secretRef:
       name: cluster-kubeconfig
+  postBuild:
+    substitute:
+      CLUSTER_NAME: staging
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: infra-controllers-sync
+  name: infra-controllers
   namespace: staging
 spec:
   dependsOn:
-    - name: tenants-sync
+    - name: tenants
   targetNamespace: staging
   interval: 1h
   retryInterval: 3m
   timeout: 5m
   prune: true
   wait: true
-  path: ./clusters/staging/infrastructure/controllers
+  path: ./clusters/staging/infra-controllers
   sourceRef:
     kind: GitRepository
     name: flux-system
@@ -58,18 +61,18 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: infra-configs-sync
+  name: infra-configs
   namespace: staging
 spec:
   dependsOn:
-    - name: infra-controllers-sync
+    - name: infra-controllers
   targetNamespace: staging
   interval: 1h
   retryInterval: 3m
   timeout: 5m
   prune: true
   wait: true
-  path: ./clusters/staging/infrastructure/configs
+  path: ./clusters/staging/infra-configs
   sourceRef:
     kind: GitRepository
     name: flux-system
@@ -81,11 +84,11 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: apps-sync
+  name: apps
   namespace: staging
 spec:
   dependsOn:
-    - name: infra-configs-sync
+    - name: infra-configs
   targetNamespace: staging
   interval: 1h
   retryInterval: 3m

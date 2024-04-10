@@ -21,4 +21,4 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: flux-restricted
-    namespace: staging
+    namespace: "${CLUSTER_NAME}"
