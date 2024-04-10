@@ -141,6 +141,12 @@ ingress-nginx   4.10.0          False           True
 podinfo         6.6.2           False           True
 ```
 
+> [!NOTE]
+> Note that Flux detects changes made directly in-cluster on the objects managed
+> by a HelmRelease and automatically [corrects the drift](https://fluxcd.io/flux/components/helm/helmreleases/#drift-detection).
+> During an incident or for debugging purposes, you can manually suspend the reconciliation
+> of a HelmRelease with `flux suspend hr <name> -n <namespace>`.
+
 ## Customize the workloads
 
 Assuming you want to ship workloads to the production cluster with a different configuration,

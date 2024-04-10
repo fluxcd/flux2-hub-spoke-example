@@ -23,6 +23,12 @@ spec:
         kind: HelmRepository
         name: podinfo
   interval: 50m
+  driftDetection:
+    mode: enabled
+    ignore:
+      - paths: ["/spec/replicas"]
+        target:
+          kind: Deployment
   install:
     remediation:
       retries: 3
