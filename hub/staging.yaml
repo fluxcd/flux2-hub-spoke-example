@@ -49,3 +49,6 @@ spec:
           value:
             secretRef:
               name: cluster-kubeconfig
+        - op: add
+          path: /spec/serviceAccountName
+          value: flux
