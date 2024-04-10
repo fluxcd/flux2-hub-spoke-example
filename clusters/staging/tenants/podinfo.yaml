@@ -5,14 +5,6 @@ metadata:
   labels:
     toolkit.fluxcd.io/tenant: dev-team
 ---
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  labels:
-    toolkit.fluxcd.io/tenant: dev-team
-  name: flux
-  namespace: podinfo
----
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
@@ -28,5 +20,5 @@ roleRef:
   name: cluster-admin
 subjects:
   - kind: ServiceAccount
-    name: flux
-    namespace: podinfo
+    name: flux-apps
+    namespace: staging
