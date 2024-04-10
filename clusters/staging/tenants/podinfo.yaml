@@ -20,5 +20,5 @@ roleRef:
   name: cluster-admin
 subjects:
   - kind: ServiceAccount
-    name: flux-apps
+    name: flux-restricted
     namespace: staging
