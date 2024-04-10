@@ -1,3 +1,13 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: podinfo
+spec:
+  interval: 12h
+  type: oci
+  url: oci://ghcr.io/stefanprodan/charts
+---
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
 metadata:
@@ -19,4 +29,6 @@ spec:
   # Default values
   # https://github.com/stefanprodan/podinfo/blob/master/charts/podinfo/values.yaml
   values:
-    replicaCount: 1
+    ingress:
+      enabled: true
+      className: nginx

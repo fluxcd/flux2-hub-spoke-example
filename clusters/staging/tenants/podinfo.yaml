@@ -15,7 +15,7 @@ metadata:
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  # This binding limits the access to the namespace
+  # This binding limits the access to the current namespace
   # being a RoleBinding instead of a ClusterRoleBinding
   name: cluster-admin
 subjects:

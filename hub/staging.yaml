@@ -26,7 +26,7 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: releases-sync
+  name: infra-controllers-sync
   namespace: staging
 spec:
   dependsOn:
@@ -37,7 +37,62 @@ spec:
   timeout: 5m
   prune: true
   wait: true
-  path: ./clusters/staging/releases
+  path: ./clusters/staging/infrastructure/controllers
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  patches:
+    - target:
+        kind: HelmRelease
+      patch: |
+        - op: add
+          path: /spec/kubeConfig
+          value:
+            secretRef:
+              name: cluster-kubeconfig
+        - op: add
+          path: /spec/serviceAccountName
+          value: flux-cluster-admin
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: infra-configs-sync
+  namespace: staging
+spec:
+  dependsOn:
+    - name: infra-controllers-sync
+  targetNamespace: staging
+  interval: 1h
+  retryInterval: 3m
+  timeout: 5m
+  prune: true
+  wait: true
+  path: ./clusters/staging/infrastructure/configs
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  kubeConfig:
+    secretRef:
+      name: cluster-kubeconfig
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: apps-sync
+  namespace: staging
+spec:
+  dependsOn:
+    - name: infra-configs-sync
+  targetNamespace: staging
+  interval: 1h
+  retryInterval: 3m
+  timeout: 5m
+  prune: true
+  wait: true
+  path: ./clusters/staging/apps
   sourceRef:
     kind: GitRepository
     name: flux-system
