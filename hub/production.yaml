@@ -1,0 +1,114 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: production
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: tenants
+  namespace: production
+spec:
+  interval: 1h
+  retryInterval: 3m
+  timeout: 5m
+  prune: true
+  wait: true
+  path: ./clusters/production/tenants
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  kubeConfig:
+    secretRef:
+      name: cluster-kubeconfig
+  postBuild:
+    substitute:
+      CLUSTER_NAME: production
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: infra-controllers
+  namespace: production
+spec:
+  dependsOn:
+    - name: tenants
+  targetNamespace: production
+  interval: 1h
+  retryInterval: 3m
+  timeout: 5m
+  prune: true
+  wait: true
+  path: ./clusters/production/infra-controllers
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  patches:
+    - target:
+        kind: HelmRelease
+      patch: |
+        - op: add
+          path: /spec/kubeConfig
+          value:
+            secretRef:
+              name: cluster-kubeconfig
+        - op: add
+          path: /spec/serviceAccountName
+          value: flux-cluster-admin
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: infra-configs
+  namespace: production
+spec:
+  dependsOn:
+    - name: infra-controllers
+  targetNamespace: production
+  interval: 1h
+  retryInterval: 3m
+  timeout: 5m
+  prune: true
+  wait: true
+  path: ./clusters/production/infra-configs
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  kubeConfig:
+    secretRef:
+      name: cluster-kubeconfig
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: apps
+  namespace: production
+spec:
+  dependsOn:
+    - name: infra-configs
+  targetNamespace: production
+  interval: 1h
+  retryInterval: 3m
+  timeout: 5m
+  prune: true
+  wait: true
+  path: ./clusters/production/apps
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  patches:
+    - target:
+        kind: HelmRelease
+      patch: |
+        - op: add
+          path: /spec/kubeConfig
+          value:
+            secretRef:
+              name: cluster-kubeconfig
+        - op: add
+          path: /spec/serviceAccountName
+          value: flux-restricted
