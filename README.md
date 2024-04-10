@@ -1,5 +1,9 @@
 # flux2-hub-spoke-example
 
+[![test](https://github.com/fluxcd/flux2-hub-spoke-example/workflows/test/badge.svg)](https://github.com/fluxcd/flux2-hub-spoke-example/actions)
+[![e2e](https://github.com/fluxcd/flux2-hub-spoke-example/workflows/e2e/badge.svg)](https://github.com/fluxcd/flux2-hub-spoke-example/actions)
+[![license](https://img.shields.io/github/license/fluxcd/flux2-hub-spoke-example.svg)](https://github.com/fluxcd/flux2-hub-spoke-example/blob/main/LICENSE)
+
 This repository showcases how to run Flux on a central Kubernetes cluster
 and have it manage the GitOps continuous delivery of apps and infrastructure
 workloads on multiple clusters.
@@ -125,6 +129,62 @@ cert-manager         cert-manager-cainjector-c7d4dbdd9-2kr6f              1/1
 cert-manager         cert-manager-webhook-847d7676c9-vqn6f                1/1
 ingress-nginx        ingress-nginx-controller-55474d95c5-mq8mj            1/1
 podinfo              podinfo-66f4ccb98c-bt99t                             1/1
+```
+
+## Customize the workloads
+
+Assuming you want to ship workloads to the production cluster with a different configuration,
+you can employ Kustomize patches in the `clusters/production` overlay and change the Flux HelmRelease values.
+
+For example, to change the number of replicas for `ingress-nginx` in the production cluster,
+you can create a patch file in `clusters/production/infra-controllers/ingress-nginx-values.yaml`:
+
+```yaml
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: ingress-nginx
+spec:
+  values:
+    controller:
+      replicaCount: 2
+```
+
+And then apply the patch to the `ingress-nginx` HelmRelease in the
+`clusters/production/infra-controllers/kustomization.yaml` file with:
+
+```yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../../deploy/infra-controllers
+patches:
+  - target:
+      kind: HelmRelease
+      name: ingress-nginx
+    path: ingress-nginx-values.yaml
+```
+
+Verify that the patch is correctly applied with:
+
+```shell
+kustomize build ./clusters/production/infra-controllers/
+```
+
+After you commit the changes to the repository, Flux will automatically apply the changes.
+
+You can trigger a manual reconciliation with:
+
+```shell
+flux -n production reconcile ks infra-controllers --with-source
+```
+
+To verify the number of pods, you can list the deployments in the production cluster:
+
+```console
+kubectl --context kind-flux-production -n ingress-nginx get deploy
+NAME                       READY   UP-TO-DATE
+ingress-nginx-controller   2/2     2
 ```
 
 ## Testing
