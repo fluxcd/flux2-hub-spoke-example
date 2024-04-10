@@ -45,7 +45,7 @@ spec:
         kind: HelmRelease
       patch: |
         - op: add
-          path: /spec/kubeconfig
+          path: /spec/kubeConfig
           value:
             secretRef:
               name: cluster-kubeconfig
