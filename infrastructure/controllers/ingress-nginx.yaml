@@ -12,9 +12,9 @@ kind: HelmRelease
 metadata:
   name: ingress-nginx
 spec:
-  targetNamespace: cert-manager
-  storageNamespace: cert-manager
-  releaseName: cert-manager
+  targetNamespace: ingress-nginx
+  storageNamespace: ingress-nginx
+  releaseName: ingress-nginx
   interval: 30m
   chart:
     spec:
