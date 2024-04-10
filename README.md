@@ -145,6 +145,9 @@ kind: HelmRelease
 metadata:
   name: ingress-nginx
 spec:
+  chart:
+    spec:
+      version: ">=4.10.0"
   values:
     controller:
       replicaCount: 2
@@ -186,6 +189,12 @@ kubectl --context kind-flux-production -n ingress-nginx get deploy
 NAME                       READY   UP-TO-DATE
 ingress-nginx-controller   2/2     2
 ```
+
+> [!IMPORTANT]
+> Note that on production clusters, it is recommended to pin the Helm chart to an exact
+> version and to use a promotion workflow to test new versions on the staging cluster before
+> deploying to production. For more information, see the guide
+> [Promote Flux Helm Releases with GitHub Actions](https://fluxcd.io/flux/use-cases/gh-actions-helm-promotion/).
 
 ## Testing
 
