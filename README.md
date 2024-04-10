@@ -8,6 +8,8 @@ This repository showcases how to run Flux on a central Kubernetes cluster
 and have it manage the GitOps continuous delivery of apps and infrastructure
 workloads on multiple clusters.
 
+![Flux Hub and Spoke](.github/imgs/flux-hub-spoke-diagram.png)
+
 ## Prerequisites
 
 For this example, you need to install the following tools:
@@ -245,8 +247,8 @@ a pull requests is merged into the main branch and synced on the cluster.
 
 This repository contains the following GitHub CI workflows:
 
-* the [test](./.github/workflows/test.yaml) workflow validates the Kubernetes manifests and Kustomize overlays are conformant with the Flux OpenAPI spec 
-* the [e2e](./.github/workflows/e2e.yaml) workflow starts the Kubernetes cluster fleet in CI and tests the setup by running Flux in Kubernetes Kind
+* the [test workflow](./.github/workflows/test.yaml) validates the Kubernetes manifests and Kustomize overlays are conformant with the Flux OpenAPI spec 
+* the [e2e workflow](./.github/workflows/e2e.yaml) starts the Kubernetes cluster fleet in CI and tests the setup by running Flux in Kubernetes Kind
 
 ## Teardown
 
