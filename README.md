@@ -143,7 +143,7 @@ ingress-nginx   4.10.0          False           True
 podinfo         6.6.2           False           True
 ```
 
-> [!NOTE]
+> [!TIP]
 > Note that Flux detects changes made directly in-cluster on the objects managed
 > by a HelmRelease and automatically [corrects the drift](https://fluxcd.io/flux/components/helm/helmreleases/#drift-detection).
 > During an incident or for debugging purposes, you can manually suspend the reconciliation
@@ -233,6 +233,20 @@ To enforce the RBAC restrictions, and to provision the controllers before the cu
 2. `infra-controllers` (CRD controllers - depends on `tenants`)
 3. `infra-configs` (cluster-wide custom resources - depends on `infra-controllers`)
 4. `apps` (app workloads - depends on `infra-configs`)
+
+> [!TIP]
+> When managing a large numbers of tenants and clusters, it is recommended to use run a dedicated
+> Flux instance for each group of clusters belonging to the same tenant. For more information
+> on how to assign Flux instances to specific clusters, see the
+> [Flux sharding and horizontal scaling guide](https://fluxcd.io/flux/installation/configuration/sharding/).
+
+## Monitoring and alerting
+
+To configure Prometheus, Loki and Grafana for monitoring the Flux controllers and the workloads reconciliation,
+see the [monitoring example repository](https://github.com/fluxcd/flux2-monitoring-example).
+
+To configure Flux to send events for Slack, Teams, Discord, Sentry and others external system,
+you can follow the [alerting guide](https://fluxcd.io/flux/monitoring/alerts/).
 
 ## Testing
 
