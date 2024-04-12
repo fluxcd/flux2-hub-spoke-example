@@ -235,10 +235,43 @@ To enforce the RBAC restrictions, and to provision the controllers before the cu
 4. `apps` (app workloads - depends on `infra-configs`)
 
 > [!TIP]
-> When managing a large numbers of tenants and clusters, it is recommended to use run a dedicated
+> When managing a large number of tenants and clusters, it is recommended to use run a dedicated
 > Flux instance for each group of clusters belonging to the same tenant. For more information
 > on how to assign Flux instances to specific clusters, see the
 > [Flux sharding and horizontal scaling guide](https://fluxcd.io/flux/installation/configuration/sharding/).
+
+## Cluster connectivity and access control
+
+For the Flux kustomize-controller and helm-controller to be able to
+reconcile the remote clusters, the Kubernetes API servers
+need to be accessible from the central cluster.
+
+The Flux controllers authenticate with the target clusters using
+kubeconfig files stored as Kubernetes secrets in the central cluster.
+
+Both the Flux `Kustomization` and `HelmRelease` objects take a reference to the
+Kubernetes secret containing the kubeconfig file:
+
+```yaml
+kind: Kustomization | HelmRelease
+spec:
+  kubeConfig:
+    secretRef:
+      name: cluster-kubeconfig
+```
+
+The secret defined in the `secretRef` must exist in the same namespace as the `Kustomization`
+or `HelmRelease` object, and the kubeconfig file must be stored in the `value` data key.
+
+If the target clusters are accessible over a proxy, the proxy address must be set in the kubeconfig file.
+If the target API servers use self-signed certificates, both controllers can be configured
+to skip the TLS verification by setting the `--insecure-kubeconfig-tls` flag in the controller container args.
+
+> [!IMPORTANT]
+> Note that kubeconfigs that rely on exec-based authentication plugins are not supported by default.
+> You will need to build custom container images with the necessary binaries and configure
+> the controllers with the `--insecure-kubeconfig-exec` flag. Another option is to generate kubeconfigs
+> with bearer tokens and refresh them periodically with a CronJob that runs e.g. `aws eks get-token`.
 
 ## Monitoring and alerting
 
